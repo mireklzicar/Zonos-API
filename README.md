@@ -42,7 +42,7 @@ Zonos follows a straightforward architecture: text normalization and phonemizati
 
 ### Python
 
-``python
+```python
 import torch
 import torchaudio
 from zonos.model import Zonos
@@ -61,14 +61,14 @@ codes = model.generate(conditioning)
 
 wavs = model.autoencoder.decode(codes).cpu()
 torchaudio.save("sample.wav", wavs[0], model.autoencoder.sampling_rate)
-``
+```
 
 ### Gradio interface (recommended)
 
-``bash
+```bash
 uv run gradio_interface.py
 # python gradio_interface.py
-``
+```
 
 This should produce a `sample.wav` file in your project root directory.
 
@@ -80,14 +80,14 @@ Zonos provides an OpenAI-compatible API that allows you to generate speech throu
 
 #### Setting up the API
 
-``bash
+```bash
 # Clone the repository
 git clone https://github.com/Zyphra/Zonos.git
 cd Zonos
 
 # Build and start the API service
 docker compose up zonos-api
-``
+```
 
 The API will be available at `http://localhost:8000`.
 
@@ -107,15 +107,15 @@ The API provides the following main endpoints:
 #### Example API Usage with cURL
 
 **Creating a Voice:**
-``bash
+```bash
 curl -X POST "http://localhost:8000/v1/audio/voice" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@path/to/voice/sample.mp3" \
   -F "name=my_voice"
-``
+```
 
 **Generating Speech:**
-``bash
+```bash
 curl -X POST "http://localhost:8000/v1/audio/speech" \
   -H "Content-Type: application/json" \
   -d '{
@@ -130,16 +130,16 @@ curl -X POST "http://localhost:8000/v1/audio/speech" \
     "response_format": "mp3"
   }' \
   --output speech.mp3
-``
+```
 
 **Get Available Models:**
-``bash
+```bash
 curl -X GET "http://localhost:8000/v1/audio/models"
-``
+```
 
 #### Python Example
 
-``python
+```python
 import requests
 import json
 
@@ -170,7 +170,7 @@ response = requests.post(
 # Save the generated audio
 with open("output.mp3", "wb") as f:
     f.write(response.content)
-``
+```
 
 ## Features
 
@@ -193,9 +193,9 @@ See also [Docker Installation](#docker-installation)
 
 Zonos depends on the eSpeak library phonemization. You can install it on Ubuntu with the following command:
 
-``bash
+```bash
 apt install -y espeak-ng
-``
+```
 
 #### Python dependencies
 
@@ -203,37 +203,37 @@ We highly recommend using a recent version of [uv](https://docs.astral.sh/uv/#in
 
 ##### Installing into a new uv virtual environment (recommended)
 
-``bash
+```bash
 uv sync
 uv sync --extra compile
-``
+```
 
 ##### Installing into the system/actived environment using uv
 
-``bash
+```bash
 uv pip install -e .
 uv pip install -e .[compile]
-``
+```
 
 ##### Installing into the system/actived environment using pip
 
-``bash
+```bash
 pip install -e .
 pip install --no-build-isolation -e .[compile]
-``
+```
 
 ##### Confirm that it's working
 
 For convenience we provide a minimal example to check that the installation works:
 
-``bash
+```bash
 uv run sample.py
 # python sample.py
-``
+```
 
 ## Docker installation
 
-``bash
+```bash
 git clone https://github.com/Zyphra/Zonos.git
 cd Zonos
 
@@ -248,4 +248,4 @@ docker build -t zonos .
 docker run -it --gpus=all --net=host -v /path/to/Zonos:/Zonos -t zonos
 cd /Zonos
 python sample.py # this will generate a sample.wav in /Zonos
-``
+```
