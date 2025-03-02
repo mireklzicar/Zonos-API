@@ -117,6 +117,11 @@ class SpeechRequest(BaseModel):
     response_format: str = Field("mp3", description="Audio format (mp3 or wav)")
     prefix_audio: Optional[str] = Field(None, description="Voice ID or name to use as audio prefix")
 
+    # New sampling parameters
+    top_k: Optional[int] = Field(None, ge=1, description="Top-K sampling: Limits selection to K most likely tokens")
+    top_p: Optional[float] = Field(None, ge=0.0, le=1.0, description="Top-P (nucleus) sampling: Dynamically limits token selection")
+    min_p: Optional[float] = Field(0.15, ge=0.0, le=1.0, description="Min-P sampling: Excludes tokens below probability threshold")
+
 class VoiceResponse(BaseModel):
     voice_id: str
     name: Optional[str]
@@ -172,13 +177,28 @@ async def create_speech(request: SpeechRequest):
 
         conditioning = model.prepare_conditioning(cond_dict)
 
+        # Build sampling parameters dictionary
+        sampling_params = {}
+
+        # Add non-None parameters to the dictionary
+        if request.min_p is not None:
+            sampling_params['min_p'] = request.min_p
+        if request.top_k is not None:
+            sampling_params['top_k'] = request.top_k
+        if request.top_p is not None:
+            sampling_params['top_p'] = request.top_p
+
+        # Use default min_p if no sampling parameters were provided
+        if not sampling_params:
+            sampling_params = dict(min_p=0.15)
+
         # Generate audio
         codes = model.generate(
             prefix_conditioning=conditioning,
             max_new_tokens=86 * 30,
             cfg_scale=2.0,
             batch_size=1,
-            sampling_params=dict(min_p=0.15)
+            sampling_params=sampling_params
         )
 
         wav_out = model.autoencoder.decode(codes).cpu().detach()
@@ -201,7 +221,7 @@ async def create_speech(request: SpeechRequest):
         )
 
     except Exception as e:
-        # Log the full exception traceback
+        # Fixed the logger issue
         print(f"Error in /v1/audio/speech: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
