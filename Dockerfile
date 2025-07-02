@@ -6,6 +6,7 @@ RUN apt update && \
     espeak-ng \
     ffmpeg \
     libsndfile1 \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
