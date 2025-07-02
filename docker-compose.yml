@@ -14,6 +14,7 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - MODEL_CACHE_DIR=/app/models
+      - DISABLE_FLASH_ATTN=1
     volumes:
       - ./models:/app/models
 
